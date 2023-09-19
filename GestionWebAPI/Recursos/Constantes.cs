@@ -22,6 +22,7 @@
             public const string CLASIFICACION_NO_PUB = "CLASIFICACION_NO_PUB";
             public const string PETICION_INFORMACION = "PETICION_INFORMACION";
             public const string COSTO_SOLICITUD = "COSTO_SOLICITUD";
+            public const string ENVIO_INFORMACION = "ENVIO_INFORMACION";
 
         }
 
@@ -44,6 +45,7 @@
             public const string DERIVACION_CONSULTA = "DERIVACION_CONSULTA";
             public const string DERIVACION_RESPUESTA = "DERIVACION_RESPUESTA";
             public const string ACOPIO = "ACOPIO";
+            public const string ACOPIO_TOTAL = "ACOPIO_TOTAL";
             public const string COSTO_SOLICITUD = "COSTO_SOLICITUD";
             public const string REGISTRO_VOUCHER = "REGISTRO_VOUCHER";
             public const string CONFIRMACION_ENTREGA = "CONFIRMACION_ENTREGA";

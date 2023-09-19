@@ -1,11 +1,11 @@
 ﻿using GestionWebAPI.Datos;
 using GestionWebAPI.DTO;
 using GestionWebAPI.Modelo;
+using GestionWebAPI.Recursos;
 using GestionWebAPI.Servicio;
 using GestionWebAPI.Utilidad;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using GestionWebAPI.Recursos;
+using System.IO.Compression;
 
 namespace GestionWebAPI.Controllers
 {
@@ -57,7 +57,7 @@ namespace GestionWebAPI.Controllers
 
         [HttpPost]
         [Route("GuardarRevision")]
-        public async Task<ActionResult> RegistrarRevisionSolicitud( [FromForm] RespuestaSolicitudRequest modelo)
+        public async Task<ActionResult> RegistrarRevisionSolicitud([FromForm] RespuestaSolicitudRequest modelo)
         {
             var rsp = new Resp<string>();
             var objDatosBit = new DBitacora();
@@ -76,7 +76,7 @@ namespace GestionWebAPI.Controllers
 
                 sdtList = await objResp.ObtenerPorTipo(Constantes.Responsable.MPV);
 
-                if (sdtList.Count>0)
+                if (sdtList.Count > 0)
                 {
                     objMpv = sdtList[0];
                 }
@@ -92,26 +92,27 @@ namespace GestionWebAPI.Controllers
                     subRuta = Path.Combine(Principal, Constantes.Documento.VALIDACION);
                     RutaCompleta = sb.GuardarDocumento(subRuta, modelo.Documento);
                 }
-                
 
-                 await objDatosBit.RegistrarRespuestaSolicitud(modelo,Constantes.Documento.VALIDACION,modelo.Respuesta,Constantes.Respuestas.VALIDACION_POSITIVA ,
-                     Constantes.Respuestas.VALIDACION_NEGATIVA, RutaCompleta);
+
+                await objDatosBit.RegistrarRespuestaSolicitud(modelo, Constantes.Documento.VALIDACION, modelo.Respuesta, Constantes.Respuestas.VALIDACION_POSITIVA,
+                    Constantes.Respuestas.VALIDACION_NEGATIVA, RutaCompleta);
 
                 if (modelo.Respuesta == 1)
                 {
                     plantillas = await dPlantilla.ObtenerPorCriterio(Constantes.CorreoCriterio.VALIDACION_APROBADA);
-                }else if (modelo.Respuesta == 0)
+                }
+                else if (modelo.Respuesta == 0)
                 {
                     plantillas = await dPlantilla.ObtenerPorCriterio(Constantes.CorreoCriterio.VALIDACION_RECHAZADA);
                 }
 
-                
+
                 if (plantillas.Count() > 0)
                 {
                     var correoMPV = new CorreoRequest();
                     string administrado = string.Empty;
                     string administradoResumen = string.Empty;
-                    if ( sdr.NroDocumento?.Length>0)
+                    if (sdr.NroDocumento?.Length > 0)
                     {
                         administrado = $"<li>Nombres : {sdr.Nombres} {sdr.ApellidoPaterno} {sdr.ApellidoMaterno}</li>" +
                             $"<li>Tipo Documento : {sdr.TipoDocumento}</li>" +
@@ -153,7 +154,7 @@ namespace GestionWebAPI.Controllers
 
                         correoMPV.Contenido = correoMPV.Contenido.Replace("{RazonesRechazo}", razon);
 
-                        
+
                     }
                     correoMPV.Destinatario = objMpv.Correo;
                     correoMPV.Adjuntos = new List<string>();
@@ -162,7 +163,7 @@ namespace GestionWebAPI.Controllers
 
 
 
-                    if (plantillas.Count>1)
+                    if (plantillas.Count > 1)
                     {
                         if (plantillas[1] != null && plantillas[1].Entidad.Equals(Constantes.CorreoEntidad.ADMINISTRADO) && modelo.Respuesta == 0)
                         {
@@ -187,11 +188,11 @@ namespace GestionWebAPI.Controllers
                             correoServicio.EnviarCorreo(correoAdm);
                         }
                     }
-                    
+
 
                 }
 
-                    rsp.status = true;
+                rsp.status = true;
                 rsp.value = "Registro Exitoso";
 
             }
@@ -260,7 +261,7 @@ namespace GestionWebAPI.Controllers
                     administrado = sdr.RazonSocial;
                 }
 
-                foreach ( var c in plantillas )
+                foreach (var c in plantillas)
                 {
                     var correo = new CorreoRequest();
                     if (c.Entidad.Equals(Constantes.CorreoEntidad.MPV))
@@ -285,8 +286,8 @@ namespace GestionWebAPI.Controllers
                         correo.Destinatario = sdr.CorreoEletronico;
                     }
 
-                    
-                    
+
+
                     correoServicio.EnviarCorreo(correo);
                 }
 
@@ -391,7 +392,7 @@ namespace GestionWebAPI.Controllers
                     {
                         razon = $"<p>Razón: </p><p>{modelo.Comentario}</p>";
                     }
-                    foreach (var item  in plantillas)
+                    foreach (var item in plantillas)
                     {
                         if (item.Entidad.Equals(Constantes.CorreoEntidad.ADMINISTRADO))
                         {
@@ -407,10 +408,10 @@ namespace GestionWebAPI.Controllers
                             correoServicio.EnviarCorreo(correo);
                         }
                     }
-                    
+
                 }
 
-                
+
 
 
                 rsp.status = true;
@@ -474,12 +475,14 @@ namespace GestionWebAPI.Controllers
                      RutaCompleta);
 
                 var plantillas = await dPlantilla.ObtenerPorCriterio(Constantes.CorreoCriterio.COSTO_SOLICITUD);
-                
+
                 var razon = string.Empty;
                 if (modelo.Comentario != null)
                 {
                     razon = $"<p>{modelo.Comentario}</p>";
                 }
+
+
                 foreach (var item in plantillas)
                 {
                     if (item.Entidad.Equals(Constantes.CorreoEntidad.ADMINISTRADO))
@@ -491,7 +494,7 @@ namespace GestionWebAPI.Controllers
                             Replace("{CodigoSolicitud}", sdr.CodigoSolicitud).
                             Replace("{costo}", modelo.Costo.ToString()).
                             Replace("{emailRemitir}", objrcl.Correo).
-                            Replace("{Comentarios}", razon); 
+                            Replace("{Comentarios}", razon);
 
                         correo.Adjuntos = new List<string>();
                         correo.Adjuntos.Add(RutaCompleta);
@@ -618,14 +621,28 @@ namespace GestionWebAPI.Controllers
             var objDatosSoli = new DSolicitud();
             var objResp = new DResponsable();
             string subRuta = string.Empty;
+            string rutaDestino = string.Empty;
+            string rutaOrigen = string.Empty;
             string RutaCompleta = string.Empty;
             var dPlantilla = new DPlantillaCorreo();
             var correoServicio = new CorreoServicio();
             SubirDocumento sb = new SubirDocumento();
+            var docAdj = new DDocumentoAdjunto();
             try
             {
+                var sclList = await objResp.ObtenerPorTipo(Constantes.Responsable.FRAI);
+
+                if (sclList.Count == 0)
+                    throw new Exception("No hay asignación para el Funcionario responsable de la Información");
+
+                var objrcl = sclList[0];
 
                 var sdr = await objDatosSoli.ObtenerDetalleSolcitudPorId(modelo.SolicitudID);
+
+                if (!sb.ValidarCarpeta(Path.Combine(sdr.CodigoSolicitud, Constantes.Documento.ACOPIO)))
+                {
+                    throw new Exception("No hay información en el acopio de las derivaciones");
+                }
 
                 string Principal = await objDatosSoli.ObtenerCodigoPorId(modelo.SolicitudID);
 
@@ -641,12 +658,81 @@ namespace GestionWebAPI.Controllers
                     administrado = sdr.RazonSocial;
                 }
 
+
+
+
+
                 await objDatosBit.RegistrarEntregaSolicitud(modelo,
                     Constantes.Respuestas.ENTREGA_INFORMACION);
+
+                var plantillas = await dPlantilla.ObtenerPorCriterio(Constantes.CorreoCriterio.ENVIO_INFORMACION);
+
                 var razon = string.Empty;
                 if (modelo.Comentario != null)
                 {
-                    razon = $"<p>Razón: </p><p>{modelo.Comentario}</p>";
+                    razon = $"<p>{modelo.Comentario}</p>";
+                }
+                var listaDocumento = await docAdj.ObtenerListaDocumentosPorSolicitud(modelo.SolicitudID, Constantes.Documento.ACOPIO);
+
+
+                if (listaDocumento.Any())
+                {
+                    subRuta = Path.Combine(sdr.CodigoSolicitud, Constantes.Documento.ACOPIO_TOTAL);
+                    rutaDestino = new SubirDocumento().CrearCarpeta(subRuta);
+                    rutaDestino = Path.Combine(rutaDestino, $"{sdr.CodigoSolicitud}_{DateTime.Now:yyyyMMddHHmm}.zip");
+                    rutaOrigen = sb.CrearCarpeta(Path.Combine(sdr.CodigoSolicitud, Constantes.Documento.ACOPIO));
+                    List<string> archivos = new List<string>();
+                    foreach (var archivo in listaDocumento)
+                    {
+                        archivos.Add(archivo.Ruta.ToString());
+                    }
+
+
+
+                    //ZipFile.CreateFromDirectory(rutaOrigen, rutaDestino, CompressionLevel.Optimal, false);
+                    //using (ZipArchive zip = ZipFile.Open(rutaDestino, ZipArchiveMode.Update))
+                    //{
+                    //    foreach (var archivo in archivos)
+                    //    {
+                    //        string entradaNombre = Path.GetFileName(archivo.ToString());
+                    //        zip.CreateEntryFromFile(archivo, entradaNombre, CompressionLevel.Optimal);
+                    //    }
+                    //}
+                    using (FileStream zipFileStream = new FileStream(rutaDestino, FileMode.Create))
+                    using (ZipArchive zip = new ZipArchive(zipFileStream, ZipArchiveMode.Create))
+                    {
+                        foreach (string archivo in archivos)
+                        {
+                            string entradaNombre = Path.GetFileName(archivo);
+                            zip.CreateEntryFromFile(archivo, entradaNombre, CompressionLevel.Optimal);
+                        }
+                    }
+
+                }
+
+
+                foreach (var item in plantillas)
+                {
+                    if (item.Entidad.Equals(Constantes.CorreoEntidad.ADMINISTRADO))
+                    {
+                        var correo = new CorreoRequest();
+                        correo.Asunto = item.Asunto.Replace("{CodigoSolicitud}", sdr.CodigoSolicitud);
+                        correo.Contenido = item.CuerpoCorreo.
+                            Replace("{asunto}", correo.Asunto).Replace("{Responsable}", administrado).
+                            Replace("{listadocumentos}", Path.GetFileName(rutaDestino)).
+                            Replace("[correoFuncionario]", objrcl.Correo).
+                            Replace("{Comentarios}", razon);
+
+
+                        if (listaDocumento.Count > 0)
+                        {
+                            correo.Adjuntos = new List<string>();
+                            correo.Adjuntos.Add(rutaDestino);
+
+                        }
+                        correo.Destinatario = sdr.CorreoEletronico;
+                        correoServicio.EnviarCorreo(correo);
+                    }
                 }
 
                 rsp.status = true;

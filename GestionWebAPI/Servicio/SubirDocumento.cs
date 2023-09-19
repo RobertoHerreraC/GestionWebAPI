@@ -32,12 +32,22 @@ namespace GestionWebAPI.Servicio
                 throw new Exception("Error al guardar documento: " + ex.Message, ex);
             }
         }
+
+       
         public string ObtenerSubRuta(string subruta, IFormFile archivo)
         {
             string rutaDocumento = Path.Combine(subruta, archivo.FileName);
             return rutaDocumento;
             
         }
+
+        public string ObtenerRutaServidor(string subruta )
+        {
+            string rutaDocumento = Path.Combine(cd.Ruta(),subruta);
+            return rutaDocumento;
+
+        }
+
         public bool ValidarCarpeta(string subruta)
         {
             string rutaDocumento = Path.Combine(cd.Ruta(), subruta);

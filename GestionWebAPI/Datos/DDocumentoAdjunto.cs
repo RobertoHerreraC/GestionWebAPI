@@ -77,6 +77,55 @@ namespace GestionWebAPI.Datos
 
             return objDocumento;
         }
+
+        public async Task<List<DocumentoSolicitudDto>> ObtenerListaDocumentosPorSolicitud(int id,string nombreDocumento)
+        {
+            var objDocumento = new List<DocumentoSolicitudDto>();
+            try
+            {
+                using (var sql = new SqlConnection(cn.CadenaSQL()))
+                {
+                    using (var cmd = new SqlCommand("ObtenerDocumentoSolicitud", sql))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@SolicitudID", id);
+                        cmd.Parameters.AddWithValue("@NombreDocumento", nombreDocumento);
+
+
+
+                        await sql.OpenAsync();
+                        using (var item = await cmd.ExecuteReaderAsync())
+                        {
+                            while (await item.ReadAsync())
+                            {
+                                objDocumento.Add(new DocumentoSolicitudDto {
+                                    Nombres = (string)item["Nombres"],
+                                    ApellidoPaterno = (string)item["ApellidoPaterno"],
+                                    ApellidoMaterno = (string)item["ApellidoMaterno"],
+                                    AreaNombre = (string)item["AreaNombre"],
+                                    NombreDocumento = (string)item["NombreDocumento"],
+                                    Ruta = (string)item["Ruta"],
+                                    DocumentoAdjuntoID = (int)item["DocumentoAdjuntoID"]
+
+                                });
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error al obtener datos : " + ex.Message, ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error general al obtener datos : " + ex.Message, ex);
+            }
+
+            return objDocumento;
+        }
     }
 
 }
