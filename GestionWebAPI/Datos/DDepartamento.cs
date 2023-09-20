@@ -11,20 +11,21 @@ namespace GestionWebAPI.Datos
 
         public async Task<List<Departamento>> Obtener()
         {
-            var objDepartemento = new List<Departamento>();
+            var objDepartemento = new List<Modelo.Departamento>();
             try
             {
                 using (var sql = new SqlConnection(cn.CadenaSQL()))
                 {
                     using (var cmd = new SqlCommand("ListarDepartamentos", sql))
                     {
-                        await sql.OpenAsync();
                         cmd.CommandType = CommandType.StoredProcedure;
+                        await sql.OpenAsync();
+                       
                         using (var item = await cmd.ExecuteReaderAsync())
                         {
                             while (await item.ReadAsync())
                             {
-                                objDepartemento.Add(new Departamento
+                                objDepartemento.Add(new Modelo.Departamento
                                 {
                                     DepartamentoID = (int)item["DepartamentoID"],
                                     NombreDepartamento = ((string)item["Departamento"]).ToUpper()

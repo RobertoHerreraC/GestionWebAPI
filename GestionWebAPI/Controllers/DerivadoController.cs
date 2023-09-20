@@ -205,39 +205,6 @@ namespace GestionWebAPI.Controllers
         }
 
 
-        //[HttpGet]
-        //[Route("Descargar")]
-        //public HttpResponseMessage DownloadDocument()
-        //{
-        //    // Ruta al archivo PDF que deseas descargar
-        //    string filePath = "ruta/del/archivo/documento.pdf";
-
-        //    if (!System.IO.File.Exists(filePath))
-        //    {
-        //        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "El archivo no se encuentra.");
-        //    }
-
-        //    // Crea una respuesta HTTP para el archivo
-        //    HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
-        //    var fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Open);
-
-        //    // Asigna el contenido de la respuesta al flujo de archivo
-        //    response.Content = new StreamContent(fileStream);
-
-        //    // Configura el tipo de contenido del archivo (en este caso, PDF)
-        //    response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
-
-        //    // Establece el encabezado Content-Disposition para indicar el nombre del archivo
-        //    response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
-        //    {
-        //        FileName = "documento.pdf"
-        //    };
-
-        //    return response;
-        //}
-
-
-
         //[HttpDelete("{id}")]
         //public async Task<ActionResult> Eliminar([FromBody] int id)
         [HttpDelete]
@@ -351,5 +318,40 @@ namespace GestionWebAPI.Controllers
 
             return Ok(rsp);
         }
+
+
+        //[HttpGet]
+        //[Route("Descargar")]
+        //public HttpResponseMessage DownloadDocument()
+        //{
+        //    // Ruta al archivo PDF que deseas descargar
+        //    string filePath = "ruta/del/archivo/documento.pdf";
+
+        //    if (!System.IO.File.Exists(filePath))
+        //    {
+        //        return Request.CreateErrorResponse(HttpStatusCode.NotFound, "El archivo no se encuentra.");
+        //    }
+
+        //    // Crea una respuesta HTTP para el archivo
+        //    HttpResponseMessage response = new HttpResponseMessage(HttpStatusCode.OK);
+        //    var fileStream = new System.IO.FileStream(filePath, System.IO.FileMode.Open);
+
+        //    // Asigna el contenido de la respuesta al flujo de archivo
+        //    response.Content = new StreamContent(fileStream);
+
+        //    // Configura el tipo de contenido del archivo (en este caso, PDF)
+        //    response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+
+        //    // Establece el encabezado Content-Disposition para indicar el nombre del archivo
+        //    response.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+        //    {
+        //        FileName = "documento.pdf"
+        //    };
+
+        //    return response;
+        //}
+
+
+
     }
 }

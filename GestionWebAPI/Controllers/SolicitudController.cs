@@ -226,6 +226,34 @@ namespace GestionWebAPI.Controllers
             return Ok(rsp);
         }
 
+        [HttpPost("descargar-formulario")]
+        public async Task<ActionResult> DescargarFormularioPDF([FromForm] ListarPorCodigoRequest modelo)
+        {
 
+
+
+            string filePath = Path.Combine("PDF_temp", "Pdf_prueba.pdf");
+            Console.WriteLine(filePath);
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), filePath);
+            Console.WriteLine(fullPath);
+            Console.WriteLine(Path.GetFileNameWithoutExtension(fullPath));
+
+
+
+
+            if (!System.IO.File.Exists(fullPath))
+                return NotFound();
+
+            var memory = new MemoryStream();
+            using (var stream = new FileStream(fullPath, FileMode.Open))
+            {
+                await stream.CopyToAsync(memory);
+            }
+            memory.Position = 0;
+
+            return File(memory, "application/pdf", "Pdf_prueba.pdf");
+
+
+        }
     }
 }

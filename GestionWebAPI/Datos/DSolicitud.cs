@@ -3,6 +3,7 @@ using GestionWebAPI.DTO;
 using GestionWebAPI.Modelo;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using System.Globalization;
 
 namespace GestionWebAPI.Datos
 {
@@ -71,6 +72,29 @@ namespace GestionWebAPI.Datos
         {
             var solicitudes = new FiltroSolicitudResponse();
             solicitudes.Solicitudes = new List<SolicitudResumen>();
+
+            
+            if ((modelo.FechaInicioPresentacion != null && modelo.FechaFinPresentacion == null) ||
+                (modelo.FechaInicioPresentacion == null && modelo.FechaFinPresentacion != null))
+            {
+                throw new Exception("Debe enviar la Fecha de Inicio y Fin de presentación");
+            }
+
+            if ((modelo.FechaInicioPresentacion != null && modelo.FechaFinPresentacion != null))
+            {
+                if (!DateTime.TryParseExact(modelo.FechaInicioPresentacion, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime  fechaInicio))
+                {
+                    throw new Exception("El formato de fecha y hora es incorrecto: dd-MM-yyyy.");
+                }
+
+                if (!DateTime.TryParseExact(modelo.FechaFinPresentacion, "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime fechaFin))
+                {
+                    throw new Exception("El formato de fecha y hora es incorrecto: dd-MM-yyyy.");
+                }
+
+            }
+
+
             try
             {
                 
@@ -82,8 +106,16 @@ namespace GestionWebAPI.Datos
                         cmd.Parameters.AddWithValue("@CodigoSolicitud", modelo?.CodigoSolicitud ?? (Object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@CatalogoEstadoID", modelo?.CatalogoEstadoID ?? (Object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@NroDocumento", modelo?.NroDocumento ?? (Object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@FechaInicioPresentacion", modelo?.FechaInicioPresentacion ?? (Object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@FechaFinPresentacion", modelo?.FechaFinPresentacion ?? (Object)DBNull.Value);
+
+                        if (modelo.FechaFinPresentacion != null && modelo.FechaInicioPresentacion != null)
+                        {
+                            DateTime.TryParse(modelo.FechaInicioPresentacion, out DateTime fechaInicio);
+                            DateTime.TryParse(modelo.FechaFinPresentacion, out DateTime fechaFin);
+                            
+                            cmd.Parameters.AddWithValue("@FechaInicioPresentacion", fechaInicio);
+                            cmd.Parameters.AddWithValue("@FechaFinPresentacion", fechaFin);
+                        }
+                        
                         cmd.Parameters.AddWithValue("@NumeroPagina", pag.NumeroPagina);
                         cmd.Parameters.AddWithValue("@TamañoPagina", pag.TamanoPagina);
 
